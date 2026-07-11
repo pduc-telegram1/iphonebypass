@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { fetchProducts, formatProductsMessage } = require('./googleSheets');
+const { getPostedMessages, savePostedMessages } = require('./messageManager');
 
 function setupScheduler(bot) {
     const channelId = process.env.TELEGRAM_CHANNEL_ID;
@@ -43,8 +44,26 @@ function setupScheduler(bot) {
                 })
             };
 
-            await bot.sendMessage(channelId, finalMessage, postOptions);
+            const sentMsg = await bot.sendMessage(channelId, finalMessage, postOptions);
             console.log(`Đã đăng bài tự động thành công vào kênh ${channelId} lúc ${currentHour}h`);
+            
+            // Xóa bài báo giá cũ để dọn dẹp Kênh (Chỉ giữ 3 bài gần nhất)
+            try {
+                let postedMsgs = getPostedMessages();
+                postedMsgs.push(sentMsg.message_id);
+                
+                while (postedMsgs.length > 3) {
+                    const oldestMsgId = postedMsgs.shift();
+                    await bot.deleteMessage(channelId, oldestMsgId).catch(e => {
+                        console.log(`Không thể xóa tin nhắn cũ ${oldestMsgId}:`, e.message);
+                    });
+                }
+                
+                savePostedMessages(postedMsgs);
+            } catch (cleanupError) {
+                console.error("Lỗi khi dọn dẹp tin nhắn cũ:", cleanupError.message);
+            }
+            
         } catch (error) {
             console.error(`Lỗi khi gửi bài đăng tự động vào ${channelId}:`, error.message);
         }
