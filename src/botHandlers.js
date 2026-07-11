@@ -93,6 +93,86 @@ function setupBotHandlers(bot) {
             console.error("Lỗi khi edit message:", error);
         }
     });
+
+    // -----------------------------------------------------
+    // TÍNH NĂNG CHÀO MỪNG THÀNH VIÊN MỚI
+    // -----------------------------------------------------
+    bot.on('new_chat_members', (msg) => {
+        const chatId = msg.chat.id;
+        const newMembers = msg.new_chat_members;
+        
+        newMembers.forEach(member => {
+            if (member.is_bot) return; // Không chào bot
+            
+            const name = member.first_name || "bạn";
+            const welcomeMsg = `🎉 Chào mừng [${name}](tg://user?id=${member.id}) đã tham gia cộng đồng CKTech!\n\n💡 Bạn có thể gõ lệnh /menu để xem bảng giá iPhone & MacBook cực sốt hôm nay nhé!`;
+            
+            bot.sendMessage(chatId, welcomeMsg, { parse_mode: "Markdown" }).then(sentMsg => {
+                // Tự động xóa lời chào sau 60 giây để đỡ rác nhóm
+                setTimeout(() => {
+                    bot.deleteMessage(chatId, sentMsg.message_id).catch(() => {});
+                }, 60000);
+            }).catch(() => {});
+        });
+    });
+
+    // -----------------------------------------------------
+    // TÍNH NĂNG KIỂM DUYỆT NGÔN TỪ (AUTO-MODERATION)
+    // -----------------------------------------------------
+    const badWords = [
+        "địt", "đm", "dcm", "lồn", "cặc", "vcl", "vl", "đĩ", "điếm", "phò", "đù má", "chó đẻ"
+    ];
+
+    bot.on('message', async (msg) => {
+        if (!msg.text || msg.text.startsWith('/')) return;
+        
+        const chatId = msg.chat.id;
+        const textLower = msg.text.toLowerCase();
+        
+        // Kiểm tra xem tin nhắn có chứa từ cấm không
+        let isBad = false;
+        for (const word of badWords) {
+            // Dùng Regex để tìm từ cấm đứng độc lập (vd: "vl" vi phạm, nhưng "vly" thì không)
+            const regex = new RegExp(`(?:^|\\s)${word}(?:\\s|$)`, 'i');
+            if (regex.test(textLower) || textLower === word) {
+                isBad = true;
+                break;
+            }
+        }
+        
+        if (isBad) {
+            try {
+                // 1. Xóa tin nhắn rác
+                await bot.deleteMessage(chatId, msg.message_id);
+                
+                // 2. Thông báo cảnh cáo
+                const name = msg.from.first_name || "Bạn";
+                const warningMsg = await bot.sendMessage(
+                    chatId, 
+                    `⚠️ **CẢNH BÁO VI PHẠM**\n[${name}](tg://user?id=${msg.from.id}) đã vi phạm nội quy nhóm vì sử dụng ngôn từ thô tục.\n\n🤐 Hình phạt: **Khóa chat 2 tiếng**!`,
+                    { parse_mode: "Markdown" }
+                );
+                
+                // Tự động xóa cảnh báo sau 15 giây
+                setTimeout(() => {
+                    bot.deleteMessage(chatId, warningMsg.message_id).catch(() => {});
+                }, 15000);
+                
+                // 3. Khóa mõm (Restrict) 2 tiếng (7200 giây)
+                const untilDate = Math.floor(Date.now() / 1000) + (2 * 60 * 60);
+                await bot.restrictChatMember(chatId, msg.from.id, {
+                    until_date: untilDate,
+                    can_send_messages: false,
+                    can_send_media_messages: false,
+                    can_send_other_messages: false,
+                    can_add_web_page_previews: false
+                });
+                
+            } catch (error) {
+                console.log("Lỗi khi xử lý bad words (có thể bot chưa làm Admin):", error.message);
+            }
+        }
+    });
 }
 
 module.exports = setupBotHandlers;
