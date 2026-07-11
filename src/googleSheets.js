@@ -25,7 +25,10 @@ function formatProductsMessage(products, filterKeyword = null) {
     if (filterKeyword && filterKeyword.toLowerCase() === "iphone") title = "📱 **BẢNG GIÁ IPHONE HÔM NAY** 📱";
     if (filterKeyword && filterKeyword.toLowerCase().includes("mac")) title = "💻 **BẢNG GIÁ MACBOOK HÔM NAY** 💻";
     
-    let message = `${title}\n\n`;
+    // Lấy ngày hiện tại theo múi giờ Việt Nam (định dạng DD/MM/YYYY)
+    const today = new Date().toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+    
+    let message = `${title}\n📅 **Ngày cập nhật:** ${today}\n\n`;
     let hasProducts = false;
 
     products.forEach(row => {
