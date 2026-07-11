@@ -33,7 +33,17 @@ function setupScheduler(bot) {
 
             const finalMessage = greeting + message;
 
-            await bot.sendMessage(channelId, finalMessage, { parse_mode: "Markdown" });
+            // Nút bấm liên hệ đính kèm dưới bài đăng
+            const postOptions = {
+                parse_mode: "Markdown",
+                reply_markup: JSON.stringify({
+                    inline_keyboard: [
+                        [{ text: "💬 Gặp Chuyên viên Tư vấn (Mua hàng)", url: "https://t.me/ck_technologys" }]
+                    ]
+                })
+            };
+
+            await bot.sendMessage(channelId, finalMessage, postOptions);
             console.log(`Đã đăng bài tự động thành công vào kênh ${channelId} lúc ${currentHour}h`);
         } catch (error) {
             console.error(`Lỗi khi gửi bài đăng tự động vào ${channelId}:`, error.message);

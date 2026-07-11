@@ -70,7 +70,10 @@ function formatProductsMessage(products, filterKeyword = null) {
         return "Hiện tại không có sản phẩm nào thuộc danh mục này trong bảng giá.";
     }
 
-    message += "📞 Liên hệ trực tiếp để được tư vấn và chốt đơn nhanh nhất!";
+    message += "➖➖➖➖➖➖➖➖➖➖\n";
+    message += "🏪 **CKTech - Uy Tín Tạo Niềm Tin**\n";
+    message += "📞 Liên hệ: 0901 50 58 50\n";
+    message += "💬 Telegram: @ck_technologys\n";
     return message;
 }
 
