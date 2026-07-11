@@ -24,10 +24,10 @@ function formatProductsMessage(products) {
     let message = "🔥 **BẢNG GIÁ ĐIỆN THOẠI & MACBOOK HÔM NAY** 🔥\n\n";
 
     products.forEach(row => {
-        const stt = row["STT"] || "";
-        const ten = row["Tên sản phẩm"] || row["Ten"];
-        const tinh_trang = row["Tình trạng"] || row["Tinh trang"] || "";
-        let gia = row["Mức giá"] !== undefined ? row["Mức giá"] : row["Gia"];
+        const stt = row["STT"] || row["STT "] || "";
+        const ten = row["Tên sản phẩm"] || row["Tên sản phẩm "] || row["Ten"] || "";
+        const tinh_trang = row["Tình trạng"] || row["Tình trạng "] || row["Tinh trang"] || "";
+        let gia = row["Mức giá"] !== undefined ? row["Mức giá"] : (row["Mức giá "] !== undefined ? row["Mức giá "] : row["Gia"]);
         if (gia === undefined || gia === null) gia = "";
 
         if (!ten) return;
