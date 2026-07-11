@@ -27,13 +27,27 @@ function formatProductsMessage(products) {
         const stt = row["STT"] || "";
         const ten = row["Tên sản phẩm"] || row["Ten"];
         const tinh_trang = row["Tình trạng"] || row["Tinh trang"] || "";
-        const gia = row["Mức giá"] || row["Gia"] || "";
+        let gia = row["Mức giá"] !== undefined ? row["Mức giá"] : row["Gia"];
+        if (gia === undefined || gia === null) gia = "";
 
         if (!ten) return;
 
+        // Xử lý giá tiền
+        let displayGia = gia;
+        let numericGia = String(gia).replace(/[,.]/g, '').trim();
+        
+        if (numericGia === "0" || gia === 0) {
+            displayGia = "Hết hàng 🔴";
+        } else if (/^\d+$/.test(numericGia)) {
+            let num = parseInt(numericGia, 10);
+            displayGia = num.toLocaleString('vi-VN') + " VNĐ";
+        } else if (gia !== "") {
+            displayGia = gia;
+        }
+
         message += `📱 **${ten}**\n`;
         if (tinh_trang) message += `   ✨ Tình trạng: ${tinh_trang}\n`;
-        if (gia) message += `   💰 Giá: ${gia}\n`;
+        if (displayGia !== "") message += `   💰 Giá: ${displayGia}\n`;
         message += "\n";
     });
 
