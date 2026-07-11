@@ -33,7 +33,7 @@ def main():
     print("Đang khởi động bot...")
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     
-    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler(["start", "menu"], start_command))
     app.add_handler(CallbackQueryHandler(button_callback))
     
     job_queue = app.job_queue
