@@ -25,10 +25,17 @@ function setupBotHandlers(bot) {
     // Lệnh /start hoặc /menu
     bot.onText(/\/(start|menu)/, (msg) => {
         const chatId = msg.chat.id;
+        const threadId = msg.message_thread_id; // Lấy ID của Topic
         const name = msg.from.first_name || "bạn";
         
         const welcomeText = `Xin chào ${name}! 👋\n\nChào mừng bạn đến với Shop Điện thoại & Macbook. Mình là trợ lý ảo, sẵn sàng phục vụ bạn 24/7.\n\nVui lòng chọn thông tin bạn cần tìm hiểu bên dưới:`;
-        bot.sendMessage(chatId, welcomeText, mainMenuOptions);
+        
+        const options = { ...mainMenuOptions };
+        if (threadId) {
+            options.message_thread_id = threadId; // Chỉ định bot phải trả lời vào đúng Topic này
+        }
+
+        bot.sendMessage(chatId, welcomeText, options);
     });
 
     // Xử lý các nút bấm Inline Keyboard
