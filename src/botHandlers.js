@@ -57,15 +57,15 @@ function setupBotHandlers(bot) {
                 });
             } 
             else if (data === "menu_bao_hanh") {
-                const text = "📜 **CHÍNH SÁCH BẢO HÀNH**\n\n🔹 **Máy Mới (New):** Bảo hành 12 tháng chính hãng (Apple, Samsung,...).\n🔹 **Máy Cũ (99%):** Bảo hành 6 tháng phần cứng, 1 đổi 1 trong 30 ngày đầu nếu có lỗi từ NSX.\n🔹 **Phụ kiện:** Bảo hành 3 tháng lỗi 1 đổi 1.\n\n*Lưu ý: Không bảo hành các trường hợp rơi vỡ, vào nước hoặc tự ý tháo lắp.*";
+                const text = "📜 **CHÍNH SÁCH BẢO HÀNH**\n\n🔹 **Máy Mới (New):** Bảo hành 12 tháng chính hãng.\n🔹 **Máy Cũ (99%):**\n  - Bảo hành 6 tháng phần cứng.\n  - 1 đổi 1 trong 30 ngày đầu nếu có bất kỳ lỗi nào từ NSX.\n  - Nguồn và màn hình: Bao test 7 ngày đầu.\n🔹 **Phụ kiện:** Bảo hành 3 tháng lỗi 1 đổi 1.\n\n*Lưu ý: Không bảo hành các trường hợp máy rơi vỡ, cấn móp, vào nước hoặc tự ý tháo mở, mất tem.*";
                 await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...backMenuOptions });
             } 
             else if (data === "menu_thu_cu") {
-                const text = "🔄 **CHÍNH SÁCH THU CŨ ĐỔI MỚI (TRADE-IN)**\n\nShop hỗ trợ thu lại máy cũ với giá tốt nhất thị trường để bạn lên đời máy mới.\n\n**Quy trình:**\n1. Mang máy trực tiếp đến cửa hàng hoặc gửi video tình trạng máy cho nhân viên.\n2. Shop báo giá thu mua.\n3. Bạn bù khoản chênh lệch (có hỗ trợ trả góp khoản bù).\n\nQuý khách có nhu cầu đổi trả sản phẩm vui lòng liên hệ trực tiếp nhân viên trong 30 ngày đầu.";
+                const text = "🔄 **THU CŨ ĐỔI MỚI & ĐỔI TRẢ**\n\n**1. Chính sách Đổi trả máy cũ:**\n- Hỗ trợ đổi trả miễn phí trong 30 ngày đầu tiên nếu máy phát sinh lỗi từ NSX.\n- Sau 30 ngày: Hỗ trợ thu mua lại máy với mức chiết khấu hợp lý theo giá thị trường hiện tại.\n\n**2. Thu cũ lên đời:**\n- Thu mua máy cũ giá cao để quý khách lên đời máy mới.\n- Chỉ cần gửi ảnh/video thực trạng máy cho chuyên viên để nhận báo giá ngay!\n- Hỗ trợ quẹt thẻ/trả góp phần tiền bù chênh lệch.";
                 await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...backMenuOptions });
             } 
             else if (data === "menu_lien_he") {
-                const text = "💬 **GẶP NHÂN VIÊN TƯ VẤN**\n\nĐể được hỗ trợ nhanh nhất và gửi video thực tế sản phẩm, vui lòng liên hệ:\n\n👉 **Hotline/Zalo:** 0987.654.321 (Mr. Sale)\n👉 **Telegram:** @Sale_Manager_Username\n\nCảm ơn bạn đã quan tâm!";
+                const text = "💬 **GẶP CHUYÊN VIÊN TƯ VẤN**\n\nĐể được tư vấn chi tiết, nhận báo giá chuẩn xác và xem hình ảnh thực tế của sản phẩm, quý khách vui lòng liên hệ trực tiếp:\n\n👉 **Chuyên viên Telegram:** @ck_technologys\n\nRất hân hạnh được phục vụ quý khách!";
                 await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...backMenuOptions });
             } 
             else if (data === "menu_back") {
