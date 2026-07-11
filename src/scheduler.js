@@ -3,29 +3,38 @@ const { fetchProducts, formatProductsMessage } = require('./googleSheets');
 
 function setupScheduler(bot) {
     const channelId = process.env.TELEGRAM_CHANNEL_ID;
-    const hour = parseInt(process.env.SCHEDULE_HOUR) || 9;
-    const minute = parseInt(process.env.SCHEDULE_MINUTE) || 0;
-
     if (!channelId) {
         console.warn("CẢNH BÁO: Chưa thiết lập TELEGRAM_CHANNEL_ID, bỏ qua việc tự động đăng bài.");
         return;
     }
 
-    // Thiết lập cron expression dựa trên cấu hình (Múi giờ local hoặc Asia/Ho_Chi_Minh)
-    // node-cron định dạng: 'phút giờ ngày tháng thứ'
-    const cronExpression = `${minute} ${hour} * * *`;
+    // Thiết lập cron expression: Chạy vào lúc 9h, 14h và 18h mỗi ngày
+    const cronExpression = `0 9,14,18 * * *`;
 
-    console.log(`Đã thiết lập lịch đăng bài tự động vào ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} mỗi ngày (Cron: ${cronExpression}).`);
+    console.log(`Đã thiết lập lịch đăng bài tự động vào 9:00, 14:00 và 18:00 mỗi ngày (Cron: ${cronExpression}).`);
 
     cron.schedule(cronExpression, async () => {
-        console.log("Bắt đầu lấy dữ liệu đăng bài hàng ngày...");
+        console.log("Bắt đầu lấy dữ liệu đăng bài tự động...");
         try {
             const products = await fetchProducts();
             const message = formatProductsMessage(products);
-            const finalMessage = "🌅 Chúc mọi người ngày mới năng lượng!\n\n" + message;
+            
+            // Tùy chỉnh lời chào theo thời gian thực (Múi giờ Việt Nam)
+            const currentHour = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"})).getHours();
+            let greeting = "";
+            
+            if (currentHour < 12) {
+                greeting = "🌅 Chúc mọi người một ngày mới tràn đầy năng lượng!\n\n";
+            } else if (currentHour < 17) {
+                greeting = "☀️ Chào buổi chiều! Cập nhật ngay giá cực bốc đầu giờ chiều:\n\n";
+            } else {
+                greeting = "🌇 Báo giá ca tối! Chốt đơn lẹ nghỉ ngơi nào anh em:\n\n";
+            }
+
+            const finalMessage = greeting + message;
 
             await bot.sendMessage(channelId, finalMessage, { parse_mode: "Markdown" });
-            console.log(`Đã đăng bài tự động thành công vào kênh ${channelId}`);
+            console.log(`Đã đăng bài tự động thành công vào kênh ${channelId} lúc ${currentHour}h`);
         } catch (error) {
             console.error(`Lỗi khi gửi bài đăng tự động vào ${channelId}:`, error.message);
         }
