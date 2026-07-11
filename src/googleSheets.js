@@ -16,12 +16,17 @@ async function fetchProducts() {
     }
 }
 
-function formatProductsMessage(products) {
+function formatProductsMessage(products, filterKeyword = null) {
     if (!products || products.length === 0) {
         return "Hiện tại hệ thống không thể lấy được báo giá hoặc danh sách đang trống. Vui lòng thử lại sau.";
     }
 
-    let message = "🔥 **BẢNG GIÁ ĐIỆN THOẠI & MACBOOK HÔM NAY** 🔥\n\n";
+    let title = "🔥 **BẢNG GIÁ ĐIỆN THOẠI & MACBOOK HÔM NAY** 🔥";
+    if (filterKeyword && filterKeyword.toLowerCase() === "iphone") title = "📱 **BẢNG GIÁ IPHONE HÔM NAY** 📱";
+    if (filterKeyword && filterKeyword.toLowerCase().includes("mac")) title = "💻 **BẢNG GIÁ MACBOOK HÔM NAY** 💻";
+    
+    let message = `${title}\n\n`;
+    let hasProducts = false;
 
     products.forEach(row => {
         const stt = row["STT"] || row["STT "] || "";
@@ -31,6 +36,16 @@ function formatProductsMessage(products) {
         if (gia === undefined || gia === null) gia = "";
 
         if (!ten) return;
+
+        // Lọc theo từ khóa (nếu có)
+        if (filterKeyword) {
+            const tenLower = ten.toLowerCase();
+            if (!tenLower.includes(filterKeyword.toLowerCase())) {
+                return;
+            }
+        }
+
+        hasProducts = true;
 
         // Xử lý giá tiền
         let displayGia = gia;
@@ -50,6 +65,10 @@ function formatProductsMessage(products) {
         if (displayGia !== "") message += `   💰 Giá: ${displayGia}\n`;
         message += "\n";
     });
+
+    if (!hasProducts) {
+        return "Hiện tại không có sản phẩm nào thuộc danh mục này trong bảng giá.";
+    }
 
     message += "📞 Liên hệ trực tiếp để được tư vấn và chốt đơn nhanh nhất!";
     return message;

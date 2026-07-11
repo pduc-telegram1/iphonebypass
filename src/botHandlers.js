@@ -55,7 +55,17 @@ function setupBotHandlers(bot) {
                 });
 
                 const products = await fetchProducts();
-                const text = formatProductsMessage(products);
+                
+                // Phân loại báo giá theo Topic
+                let filterStr = null;
+                const threadId = query.message.message_thread_id;
+                if (threadId === 2) {
+                    filterStr = "iphone";
+                } else if (threadId === 4) {
+                    filterStr = "mac";
+                }
+
+                const text = formatProductsMessage(products, filterStr);
 
                 await bot.editMessageText(text, {
                     chat_id: chatId,
