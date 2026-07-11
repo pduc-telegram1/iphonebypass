@@ -52,6 +52,34 @@ function setupScheduler(bot) {
         scheduled: true,
         timezone: "Asia/Ho_Chi_Minh"
     });
+
+    // -----------------------------------------------------
+    // TỰ ĐỘNG ĐĂNG TIN TỨC CÔNG NGHỆ VÀO GROUP (10h SÁNG)
+    // -----------------------------------------------------
+    const newsCron = `0 10 * * *`;
+    const GROUP_CHAT_ID = "-1003752982345";
+    const NEWS_TOPIC_ID = 3;
+
+    const { fetchLatestTechNews } = require('./newsFetcher');
+
+    cron.schedule(newsCron, async () => {
+        console.log("Bắt đầu kéo tin tức công nghệ...");
+        try {
+            const newsMsg = await fetchLatestTechNews();
+            if (newsMsg) {
+                await bot.sendMessage(GROUP_CHAT_ID, newsMsg, {
+                    parse_mode: "Markdown",
+                    message_thread_id: NEWS_TOPIC_ID
+                });
+                console.log("Đã đăng tin tức công nghệ vào Topic 3 thành công!");
+            }
+        } catch (error) {
+            console.error("Lỗi khi đăng tin tức:", error.message);
+        }
+    }, {
+        scheduled: true,
+        timezone: "Asia/Ho_Chi_Minh"
+    });
 }
 
 module.exports = setupScheduler;

@@ -1,4 +1,5 @@
 const { fetchProducts, formatProductsMessage } = require('./googleSheets');
+const { addReputation, getTopReputation } = require('./reputation');
 
 function setupBotHandlers(bot) {
     const mainMenuOptions = {
@@ -21,6 +22,24 @@ function setupBotHandlers(bot) {
         }),
         parse_mode: "Markdown"
     };
+
+    // Lệnh /top
+    bot.onText(/^\/top/, (msg) => {
+        const chatId = msg.chat.id;
+        const topUsers = getTopReputation(5);
+        if (topUsers.length === 0) {
+            bot.sendMessage(chatId, "🏆 Bảng xếp hạng hiện đang trống. Hãy tương tác để giành vị trí đầu tiên!");
+            return;
+        }
+        
+        let text = "🏆 **BẢNG XẾP HẠNG UY TÍN (TOP 5)** 🏆\n\n";
+        const medals = ["🥇", "🥈", "🥉", "🏅", "🏅"];
+        topUsers.forEach((u, i) => {
+            text += `${medals[i]} **${u.name}**: ${u.points} điểm\n`;
+        });
+        
+        bot.sendMessage(chatId, text, { parse_mode: "Markdown" });
+    });
 
     // Lệnh /start hoặc /menu
     bot.onText(/\/(start|menu)/, (msg) => {
@@ -170,6 +189,51 @@ function setupBotHandlers(bot) {
                 
             } catch (error) {
                 console.log("Lỗi khi xử lý bad words (có thể bot chưa làm Admin):", error.message);
+            }
+            return; // Dừng xử lý tiếp
+        }
+
+        // -----------------------------------------------------
+        // HỆ THỐNG ANTI-SCAM (LỌC LINK)
+        // -----------------------------------------------------
+        const hasUrl = msg.entities && msg.entities.some(e => e.type === 'url' || e.type === 'text_link');
+        const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|\.com|\.vn|\.net|\.org)/i;
+        
+        if (hasUrl || urlRegex.test(textLower)) {
+            // Cho phép các link phổ biến an toàn
+            const isSafeLink = /(youtube\.com|youtu\.be|tiktok\.com|facebook\.com|fb\.com)/i.test(textLower);
+            if (!isSafeLink) {
+                try {
+                    const memberInfo = await bot.getChatMember(chatId, msg.from.id);
+                    const isAdmin = ['creator', 'administrator'].includes(memberInfo.status);
+                    
+                    if (!isAdmin) {
+                        await bot.deleteMessage(chatId, msg.message_id);
+                        const warning = await bot.sendMessage(chatId, `🚫 [${msg.from.first_name}](tg://user?id=${msg.from.id}) Vui lòng không gửi link lạ vào nhóm để bảo vệ an toàn cho cộng đồng!`, { parse_mode: "Markdown" });
+                        setTimeout(() => bot.deleteMessage(chatId, warning.message_id).catch(()=>{}), 10000);
+                        return; // Dừng xử lý tiếp
+                    }
+                } catch (e) { console.error("Lỗi kiểm tra admin:", e.message); }
+            }
+        }
+        
+        // -----------------------------------------------------
+        // HỆ THỐNG ĐIỂM THƯỞNG (REPUTATION)
+        // -----------------------------------------------------
+        if (msg.reply_to_message && msg.reply_to_message.from) {
+            const replyTo = msg.reply_to_message.from;
+            // Không tự cộng điểm cho mình và không cộng điểm cho bot
+            if (replyTo.id !== msg.from.id && !replyTo.is_bot) {
+                const thanksWords = ["cảm ơn", "cám ơn", "cam on", "+1", "thanks", "tks"];
+                const isThanks = thanksWords.some(w => textLower.includes(w));
+                
+                if (isThanks) {
+                    const newPoints = addReputation(replyTo.id, replyTo.first_name);
+                    bot.sendMessage(chatId, `🎉 **${replyTo.first_name}** vừa được cộng +1 Uy tín! (Tổng: ${newPoints} điểm) 🏆`, { 
+                        parse_mode: "Markdown",
+                        reply_to_message_id: msg.reply_to_message.message_id 
+                    }).catch(()=>{});
+                }
             }
         }
     });
