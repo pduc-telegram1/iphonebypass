@@ -1,0 +1,27 @@
+name: Keep Render bot awake
+
+on:
+  schedule:
+    - cron: '2-59/5 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: keep-render-bot-awake
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Wake and check the bot
+        env:
+          BOT_URL: https://iphonebypass-6klq.onrender.com/
+        run: |
+          curl --fail --silent --show-error \
+            --retry 2 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 15 --max-time 65 \
+            "$BOT_URL" | tee /tmp/bot-health.txt
+          grep -Fq 'Bot is running on Node.js!' /tmp/bot-health.txt
