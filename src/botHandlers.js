@@ -101,7 +101,7 @@ function setupBotHandlers(bot) {
                 await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...backMenuOptions });
             } 
             else if (data === "menu_lien_he") {
-                const text = "💬 **GẶP CHUYÊN VIÊN TƯ VẤN**\n\nĐể được tư vấn chi tiết, nhận báo giá chuẩn xác và xem hình ảnh thực tế của sản phẩm, quý khách vui lòng liên hệ trực tiếp:\n\n👉 **Chuyên viên Telegram:** @ck_technologys\n\nRất hân hạnh được phục vụ quý khách!";
+                const text = "💬 **GẶP CHUYÊN VIÊN TƯ VẤN**\n\nĐể được tư vấn chi tiết, nhận báo giá chuẩn xác và xem hình ảnh thực tế của sản phẩm, quý khách vui lòng liên hệ trực tiếp:\n\n🏪 **CKTech - Uy Tín Tạo Niềm Tin**\n📞 Liên hệ: 0868 073 024\n💬 Telegram: @ck\\_technologys\n\nRất hân hạnh được phục vụ quý khách!";
                 await bot.editMessageText(text, { chat_id: chatId, message_id: messageId, ...backMenuOptions });
             } 
             else if (data === "menu_back") {

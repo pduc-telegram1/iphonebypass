@@ -75,7 +75,7 @@ function formatProductsMessage(products, filterKeyword = null) {
 
     message += "➖➖➖➖➖➖➖➖➖➖\n";
     message += "🏪 **CKTech - Uy Tín Tạo Niềm Tin**\n";
-    message += "📞 Liên hệ: 0901 50 58 50\n";
+    message += "📞 Liên hệ: 0868 073 024\n";
     message += "💬 Telegram: @ck\\_technologys\n";
     return message;
 }
